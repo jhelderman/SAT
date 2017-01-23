@@ -21,12 +21,19 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 CNF_exp::CNF_exp() {
   std::vector<std::vector<int> > clauses();
+  this->num_literals = 0;
 }
 
 
 CNF_exp::CNF_exp(char* path) {
   std::vector<std::vector<int> > clauses();
+  this->num_literals = 0;
   this->load(path);
+}
+
+
+unsigned CNF_exp::get_num_literals() {
+  return this->num_literals;
 }
 
 
@@ -41,6 +48,8 @@ void CNF_exp::load(char* path) {
     while (line[0] != 'p') {
       std::getline(fid, line);
     }
+    std::vector<std::string> header = split(line, ' ');
+    this->num_literals = std::atoi(header[2].c_str());
     // parse the logical expression
     unsigned i;
     std::vector<std::string> split_line;
