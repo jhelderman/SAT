@@ -1,5 +1,4 @@
 #include "cnf_exp.h"
-#include <iostream>
 
 
 void split(const std::string &s, char delim, std::vector<std::string> &elems) {
@@ -50,19 +49,22 @@ void CNF_exp::load(char* path) {
     }
     std::vector<std::string> header = split(line, ' ');
     this->num_literals = std::atoi(header[2].c_str());
+    unsigned num_clauses = std::atoi(header[3].c_str());
     // parse the logical expression
-    unsigned i;
+    unsigned i, j;
     std::vector<std::string> split_line;
-    std::getline(fid, line);
-    while (line[0] != '%') {
+    for (j = 0; j < num_clauses; ++j) {
+      // split the line into its constituent literals
+      std::getline(fid, line);
       split_line = split(line, ' ');
+      // add the literals to the clause
       std::vector<int> clause(0);
       for (i = 0; i < split_line.size() - 1; ++i) {
         if (!split_line[i].empty())
           clause.push_back(std::atoi(split_line[i].c_str()));
       }
+      // add the clause the list
       this->clauses.push_back(clause);
-      std::getline(fid, line);
     }
   }
 }
@@ -77,14 +79,24 @@ bool CNF_exp::eval(std::vector<bool> input) {
     // compute the logical value of the clause
     clause_val = false;
     for (j = 0; j < this->clauses[i].size(); ++j) {
-      if (this->clauses[i][j] > 0) {
-        clause_val |= input[this->clauses[i][j] - 1];
+      if (this->clauses.at(i).at(j) > 0) {
+        clause_val |= input.at(this->clauses.at(i).at(j) - 1);
       } else {
-        clause_val |= !input[-this->clauses[i][j] - 1];
+        clause_val |= !input.at(-this->clauses.at(i).at(j) - 1);
       }
     }
     // compute the conjunction of this clause with all previous clauses
     output &= clause_val;
   }
   return output;
+}
+
+
+void CNF_exp::print() {
+  unsigned i, j;
+  for (i = 0; i < this->clauses.size(); ++i) {
+    for (j = 0; j < this->clauses[i].size(); ++j)
+      std::cout << this->clauses[i][j] << ' ';
+    std::cout << std::endl;
+  }
 }

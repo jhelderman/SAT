@@ -4,10 +4,11 @@
 #include <vector>
 
 int main(int argc, char** argv) {
-  char* path = "/home/jhelderman/E/school/comb-opt/test.cnf";
-  std::vector<bool> input = {true, false};
+  char* path = "./test/test1.cnf";
+  std::vector<bool> input = {true, false, true, true};
   CNF_exp cnf(path);
   BF_SAT_Solver solver;
+  cnf.print();
   bool output = cnf.eval(input);
   std::cout << "Input: ";
   for (unsigned i = 0; i < input.size(); ++i)

@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 
 class CNF_exp {
@@ -14,5 +15,6 @@ class CNF_exp {
   CNF_exp(char* path);
   void load(char* path);
   bool eval(std::vector<bool> input);
+  void print();
   unsigned get_num_literals();
 };
