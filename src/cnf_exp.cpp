@@ -18,6 +18,17 @@ std::vector<std::string> split(const std::string &s, char delim) {
 }
 
 
+std::vector<std::string> filter_empty(const std::vector<std::string> &v) {
+  std::vector<std::string> output;
+  for (unsigned i = 0; i < v.size(); ++i) {
+    if (!v.at(i).empty()) {
+      output.push_back(v.at(i));
+    }
+  }
+  return output;
+}
+
+
 CNF_exp::CNF_exp() {
   std::vector<std::vector<int> > clauses();
   this->num_literals = 0;
@@ -48,6 +59,7 @@ void CNF_exp::load(char* path) {
       std::getline(fid, line);
     }
     std::vector<std::string> header = split(line, ' ');
+    header = filter_empty(header);
     this->num_literals = std::atoi(header[2].c_str());
     unsigned num_clauses = std::atoi(header[3].c_str());
     // parse the logical expression
@@ -57,6 +69,7 @@ void CNF_exp::load(char* path) {
       // split the line into its constituent literals
       std::getline(fid, line);
       split_line = split(line, ' ');
+      split_line = filter_empty(split_line);
       // add the literals to the clause
       std::vector<int> clause(0);
       for (i = 0; i < split_line.size() - 1; ++i) {
