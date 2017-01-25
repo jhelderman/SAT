@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
   std::cout << std::endl;
   std::cout << "Output: " << output << std::endl;
   // run the exhaustive solver
-  bool sat = solver.check(cnf);
+  int sat = solver.check(cnf);
   std::cout << "Satisfiable: " << sat << std::endl;
   return 0;
 }
