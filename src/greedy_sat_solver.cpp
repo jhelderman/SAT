@@ -1,7 +1,15 @@
 #include "greedy_sat_solver.h"
+#include <iostream>
 
 
 Greedy_SAT_Solver::Greedy_SAT_Solver() {}
+
+
+void print_set(std::set<int> s) {
+  for (std::set<int>::iterator it = s.begin(); it != s.end(); ++it)
+    std::cout << *it << " ";
+  std::cout << std::endl;
+}
 
 
 void Greedy_SAT_Solver::optimal_assignment(CNF_exp exp, CNF_exp &opt_exp, int &opt_literal) {
@@ -13,6 +21,7 @@ void Greedy_SAT_Solver::optimal_assignment(CNF_exp exp, CNF_exp &opt_exp, int &o
   std::set<int> variables = exp.get_variables();
   unsigned buf_len;
   CNF_exp buf;
+  print_set(variables);
   // initialize the optimal state
   opt_literal = *variables.begin();
   opt_exp = exp.partial_eval(opt_literal);
@@ -34,6 +43,9 @@ void Greedy_SAT_Solver::optimal_assignment(CNF_exp exp, CNF_exp &opt_exp, int &o
 
 int Greedy_SAT_Solver::check(CNF_exp exp) {
   std::set<int> partial_assignment;
+  std::cout << "Expression:" << std::endl;
+  exp.print();
+  std::cout << std::endl;
   return this->check(exp, partial_assignment);
 }
 
@@ -50,6 +62,10 @@ int Greedy_SAT_Solver::check(CNF_exp exp, std::set<int> &partial_assignment) {
   CNF_exp opt_exp;
   int opt_literal;
   this->optimal_assignment(exp, opt_exp, opt_literal);
+  std::cout << "Assignment: " << opt_literal << std::endl;
+  std::cout << "Resulting Expression:" << std::endl;
+  opt_exp.print();
+  std::cout << std::endl;
   // reduce the size of the problem and recur
   partial_assignment.insert(opt_literal);
   if (opt_exp.is_true_exp())

@@ -29,12 +29,11 @@ std::vector<std::string> filter_empty(const std::vector<std::string> &v) {
 }
 
 
-std::set<int> default_variables(const unsigned &num_literals) {
+std::set<int> default_variables(const std::vector<std::vector<int> > clauses) {
   std::set<int> output;
-  for (unsigned i = 1; i <= num_literals; ++i) {
-    output.insert(i);
-    output.insert(-i);
-  }
+  for (unsigned i = 0; i < clauses.size(); ++i)
+    for (unsigned j = 0; j < clauses[i].size(); ++j)
+      output.insert(clauses[i][j]);
   return output;
 }
 
@@ -42,7 +41,7 @@ std::set<int> default_variables(const unsigned &num_literals) {
 CNF_exp::CNF_exp() {
   std::vector<std::vector<int> > clauses();
   this->num_literals = 0;
-  this->variables = default_variables(this->num_literals);
+  this->variables = default_variables({});
   this->false_exp = false;
 }
 
@@ -52,7 +51,7 @@ CNF_exp::CNF_exp(char* path) {
   this->num_literals = 0;
   this->false_exp = false;
   this->load(path);
-  this->variables = default_variables(this->num_literals);
+  this->variables = default_variables(this->clauses);
 }
 
 
@@ -61,8 +60,8 @@ CNF_exp::CNF_exp(
     const std::vector<std::vector<int> > &clauses,
     const bool &false_exp) {
   this->num_literals = num_literals;
-  this->variables = default_variables(this->num_literals);
   this->clauses = clauses;
+  this->variables = default_variables(this->clauses);
   this->false_exp = false_exp;
 }
 
@@ -197,10 +196,8 @@ CNF_exp CNF_exp::partial_eval(const int &literal) {
   }
   // remove the variable from the list
   std::set<int> variables(this->variables);
-  if (var_id > 0)
-    variables.erase(var_id);
-  else
-    variables.erase(-var_id);
+  variables.erase(var_id);
+  variables.erase(-var_id);
   // iterate through the clauses
   bool clause_true;
   bool clause_false;
@@ -223,7 +220,6 @@ CNF_exp CNF_exp::partial_eval(const int &literal) {
           (clause_var_id == -var_id && val)) {
         // do nothing
         clause_false = true;
-        break;
       } else {  // variable does not match, no effect on clause
         clause.push_back(clause_var_id);
       }
