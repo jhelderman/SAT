@@ -32,13 +32,25 @@ std::vector<std::string> filter_empty(const std::vector<std::string> &v) {
 CNF_exp::CNF_exp() {
   std::vector<std::vector<int> > clauses();
   this->num_literals = 0;
+  this->false_exp = false;
 }
 
 
 CNF_exp::CNF_exp(char* path) {
   std::vector<std::vector<int> > clauses();
   this->num_literals = 0;
+  this->false_exp = false;
   this->load(path);
+}
+
+
+CNF_exp::CNF_exp(
+    const unsigned &num_literals,
+    const std::vector<std::vector<int> > &clauses,
+    const bool &false_exp) {
+  this->num_literals = num_literals;
+  this->clauses = clauses;
+  this->false_exp = false_exp;
 }
 
 
@@ -84,6 +96,10 @@ void CNF_exp::load(char* path) {
 
 
 bool CNF_exp::eval(std::vector<bool> input) {
+  // check for a false expression
+  if (this->false_exp)
+    return false;
+  // evaluate the expression
   bool output = true;
   bool clause_val;
   unsigned i, j;
@@ -106,10 +122,60 @@ bool CNF_exp::eval(std::vector<bool> input) {
 
 
 void CNF_exp::print() {
+  // check for a false expression
+  if (this->false_exp) {
+    std::cout << "false" << std::endl;
+    return;
+  }
+  // print out the expression
   unsigned i, j;
   for (i = 0; i < this->clauses.size(); ++i) {
     for (j = 0; j < this->clauses[i].size(); ++j)
       std::cout << this->clauses[i][j] << ' ';
     std::cout << std::endl;
   }
+}
+
+
+
+CNF_exp CNF_exp::partial_eval(const int &var_id, const bool &val) {
+  // iterate through the clauses
+  bool clause_true;
+  bool clause_false;
+  int clause_var_id;
+  std::vector<std::vector<int> > clauses;
+  for (unsigned i = 0; i < this->clauses.size(); ++i) {
+    // check for the variable in the given clause
+    clause_true = false;
+    clause_false = false;
+    std::vector<int> clause;
+    for (unsigned j = 0; j < this->clauses.at(i).size(); ++j) {
+      clause_var_id = this->clauses.at(i).at(j);
+      if (  // clause is true
+          (clause_var_id == var_id && val) ||
+          (clause_var_id == -var_id && !val)) {
+        clause_true = true;
+        break;
+      } else if (  // literal does not match, remove from clause
+          (clause_var_id == var_id && !val) ||
+          (clause_var_id == -var_id && val)) {
+        // do nothing
+        clause_false = true;
+        break;
+      } else {  // variable does not match, no effect on clause
+        clause.push_back(clause_var_id);
+      }
+    }
+    // add the modified clause
+    if (clause_true) {
+      // do nothing
+    } else if (clause_false && clause.size() == 0) {
+      // clause is false. this means the expression is false
+      return CNF_exp(this->num_literals, FALSE_EXP, true);
+    } else if (!clause_true && clause.size() != 0) {
+      clauses.push_back(clause);
+    }
+  }
+  // construct a new CNF expression from the result
+  return CNF_exp(this->num_literals, clauses);
 }

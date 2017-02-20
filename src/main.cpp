@@ -7,8 +7,11 @@ int main(int argc, char** argv) {
   char* path = "./test/test1.cnf";
   std::vector<bool> input = {true, false, true, true};
   CNF_exp cnf(path);
+  CNF_exp part_eval = cnf.partial_eval(1, false);
   BF_SAT_Solver solver;
   cnf.print();
+  std::cout << std::endl;
+  part_eval.print();
   bool output = cnf.eval(input);
   std::cout << "Input: ";
   for (unsigned i = 0; i < input.size(); ++i)
