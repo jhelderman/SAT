@@ -29,9 +29,20 @@ std::vector<std::string> filter_empty(const std::vector<std::string> &v) {
 }
 
 
+std::set<int> default_variables(const unsigned &num_literals) {
+  std::set<int> output;
+  for (unsigned i = 1; i <= num_literals; ++i) {
+    output.insert(i);
+    output.insert(-i);
+  }
+  return output;
+}
+
+
 CNF_exp::CNF_exp() {
   std::vector<std::vector<int> > clauses();
   this->num_literals = 0;
+  this->variables = default_variables(this->num_literals);
   this->false_exp = false;
 }
 
@@ -41,6 +52,7 @@ CNF_exp::CNF_exp(char* path) {
   this->num_literals = 0;
   this->false_exp = false;
   this->load(path);
+  this->variables = default_variables(this->num_literals);
 }
 
 
@@ -49,6 +61,19 @@ CNF_exp::CNF_exp(
     const std::vector<std::vector<int> > &clauses,
     const bool &false_exp) {
   this->num_literals = num_literals;
+  this->variables = default_variables(this->num_literals);
+  this->clauses = clauses;
+  this->false_exp = false_exp;
+}
+
+
+CNF_exp::CNF_exp(
+    const unsigned &num_literals,
+    const std::vector<std::vector<int> > &clauses,
+    const std::set<int> variables,
+    const bool &false_exp) {
+  this->num_literals = num_literals;
+  this->variables = variables;
   this->clauses = clauses;
   this->false_exp = false_exp;
 }
@@ -56,6 +81,27 @@ CNF_exp::CNF_exp(
 
 unsigned CNF_exp::get_num_literals() {
   return this->num_literals;
+}
+
+
+unsigned CNF_exp::get_length() {
+  return this->clauses.size();
+}
+
+
+
+bool CNF_exp::is_false_exp() {
+  return this->false_exp;
+}
+
+
+bool CNF_exp::is_true_exp() {
+  return (!this->false_exp && this->clauses.size() == 0);
+}
+
+
+std::set<int> CNF_exp::get_variables() {
+  return this->variables;
 }
 
 
@@ -138,7 +184,23 @@ void CNF_exp::print() {
 
 
 
-CNF_exp CNF_exp::partial_eval(const int &var_id, const bool &val) {
+CNF_exp CNF_exp::partial_eval(const int &literal) {
+  // get the variable id and value
+  int var_id;
+  bool val;
+  if (literal > 0) {
+    var_id = literal;
+    val = true;
+  } else {
+    var_id = -literal;
+    val = false;
+  }
+  // remove the variable from the list
+  std::set<int> variables(this->variables);
+  if (var_id > 0)
+    variables.erase(var_id);
+  else
+    variables.erase(-var_id);
   // iterate through the clauses
   bool clause_true;
   bool clause_false;
@@ -171,11 +233,11 @@ CNF_exp CNF_exp::partial_eval(const int &var_id, const bool &val) {
       // do nothing
     } else if (clause_false && clause.size() == 0) {
       // clause is false. this means the expression is false
-      return CNF_exp(this->num_literals, FALSE_EXP, true);
+      return CNF_exp(this->num_literals, FALSE_EXP, variables, true);
     } else if (!clause_true && clause.size() != 0) {
       clauses.push_back(clause);
     }
   }
   // construct a new CNF expression from the result
-  return CNF_exp(this->num_literals, clauses);
+  return CNF_exp(this->num_literals, clauses, variables);
 }
