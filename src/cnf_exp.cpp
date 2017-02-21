@@ -104,6 +104,20 @@ std::set<int> CNF_exp::get_variables() {
 }
 
 
+std::vector<int> CNF_exp::singleton_clauses() {
+  std::set<int> output_set;
+  for (unsigned i = 0; i < this->clauses.size(); ++i)
+    if (this->clauses[i].size() == 1)
+      if (output_set.count(this->clauses[i][0]) == 0 &&
+          output_set.count(-this->clauses[i][0]) == 0)
+      output_set.insert(this->clauses[i][0]);
+  std::vector<int> output;
+  for (std::set<int>::iterator it = output_set.begin(); it != output_set.end(); ++it)
+    output.push_back(*it);
+  return output;
+}
+
+
 void CNF_exp::load(char* path) {
   // initialize the file
   std::string line;
@@ -236,4 +250,12 @@ CNF_exp CNF_exp::partial_eval(const int &literal) {
   }
   // construct a new CNF expression from the result
   return CNF_exp(this->num_literals, clauses, variables);
+}
+
+
+CNF_exp CNF_exp::partial_eval(const std::vector<int> &literals) {
+  CNF_exp output = *this;
+  for (unsigned i = 0; i < literals.size(); ++i)
+    output = output.partial_eval(literals[i]);
+  return output;
 }

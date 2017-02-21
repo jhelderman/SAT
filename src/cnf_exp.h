@@ -34,12 +34,14 @@ class CNF_exp {
   // evaluation
   bool eval(std::vector<bool> input);
   CNF_exp partial_eval(const int &literal);
+  CNF_exp partial_eval(const std::vector<int> &literals);
 
   // IO
   void load(char* path);
   void print();
 
   // instance information queries
+  std::vector<int> singleton_clauses();
   unsigned get_num_literals();
   unsigned get_length();
   bool is_false_exp();
