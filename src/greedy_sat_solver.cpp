@@ -11,24 +11,22 @@ void print_set(std::set<int> s) {
   std::cout << std::endl;
 }
 
+void print_vec(std::vector<int> a) {
+  for (unsigned i = 0; i < a.size(); ++i)
+    std::cout << a[i] << " ";
+  std::cout << std::endl;
+}
+
 
 void unit_propagate(CNF_exp &exp, std::set<int> &partial_assignment) {
   std::vector<int> singletons = exp.singleton_clauses();
-  // bool disp = singletons.size() > 0;
-  // if (disp)
-  //   std::cout << "Singletons: ";
   while (singletons.size() > 0) {
     exp = exp.partial_eval(singletons);
     for (unsigned i = 0; i < singletons.size(); ++i) {
-      // std::cout << singletons[i] << " ";
       partial_assignment.insert(singletons[i]);
     }
     singletons = exp.singleton_clauses();
   }
-  // if (disp) {
-  //   std::cout << std::endl;
-  //   std::cout << std::endl;
-  // }
 }
 
 
@@ -65,9 +63,6 @@ void Greedy_SAT_Solver::optimal_assignment(CNF_exp exp, CNF_exp &opt_exp, int &o
 
 int Greedy_SAT_Solver::check(CNF_exp exp) {
   std::set<int> partial_assignment;
-  // std::cout << "Expression:" << std::endl;
-  // exp.print();
-  // std::cout << std::endl;
   return this->check(exp, partial_assignment);
 }
 
@@ -86,12 +81,7 @@ int Greedy_SAT_Solver::check(CNF_exp exp, std::set<int> &partial_assignment) {
   this->optimal_assignment(exp, opt_exp, opt_literal);
   partial_assignment.insert(opt_literal);
   opt_exp = exp.partial_eval(opt_literal);
-  // std::cout << "End Optimal Assignment Calculation" << std::endl;
   unit_propagate(opt_exp, partial_assignment);
-  // std::cout << "Assignment: " << opt_literal << std::endl;
-  // std::cout << "Resulting Expression:" << std::endl;
-  // opt_exp.print();
-  // std::cout << std::endl;
   // reduce the size of the problem and recur
   if (opt_exp.is_true_exp())
     return 1;

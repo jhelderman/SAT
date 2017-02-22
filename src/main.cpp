@@ -48,25 +48,45 @@
 //   return 0;
 // }
 
+void print(std::set<int> a) {
+  for (std::set<int>::iterator it = a.begin(); it != a.end(); ++it)
+    std::cout << *it << " ";
+  std::cout << std::endl;
+}
+
 int main(int argc, char** argv) {
-  for (unsigned i = 1; i < 1001; ++i) {
+  unsigned counter = 0;
+  unsigned nonsense_counter = 0;
+  const std::string nvar = "175";
+  const std::string nclause = "753";
+  for (unsigned i = 1; i < 101; ++i) {
     // parameters
     // char* path = (char*)"./test/test1.cnf";
-    std::string buf = ("/home/jhelderman/E/school/comb-opt/SAT-examples/uf20-91/uf20-0" + std::to_string(i) +  ".cnf");
+    std::string buf = ("/home/jhelderman/E/school/comb-opt/SAT-examples/uf" + nvar + "-" + nclause + "/uf" + nvar + "-0" + std::to_string(i) +  ".cnf");
     char* path = new char[buf.length() + 1];
     std::strcpy(path, buf.c_str());
     // load the cnf expression
     std::cout << "Loading CNF Expression #" << i << "..." << std::endl;
     CNF_exp cnf(path);
     Greedy_SAT_Solver greedy_solver;
-    int greedy_sat = greedy_solver.check(cnf);
+    std::set<int> assignment;
+    int greedy_sat = greedy_solver.check(cnf, assignment);
     if (greedy_sat == 0) {
-      cnf.print();
-      std::cout << std::endl << std::endl;
-      std::cout << i << std::endl;
-      std::cout << "Greedy SAT: " << greedy_sat << std::endl;
+      std::cout << "WRONG" << std::endl;
+      ++counter;
+    } else {
+      bool cnf_eval = cnf.eval(assignment);
+      if (!cnf_eval) {
+        std::cout << "Strange things are happening... ############################" << std::endl;
+        ++nonsense_counter;
+        print(assignment);
+      }
     }
     delete[] path;
   }
+  std::cout << "Number of Variables: " << nvar << std::endl;
+  std::cout << "Number of Clauses: " << nclause << std::endl;
+  std::cout << counter << " / 100 Errors" << std::endl;
+  std::cout << nonsense_counter << " / 100 Illogical Answers" << std::endl;
   return 0;
 }

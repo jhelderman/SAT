@@ -24,15 +24,16 @@ class CNF_exp {
   CNF_exp(
     const unsigned &num_literals,
     const std::vector<std::vector<int> > &clauses,
-    const bool &false_exp=false);
+    const bool &false_exp);
   CNF_exp(
     const unsigned &num_literals,
     const std::vector<std::vector<int> > &clauses,
     const std::set<int> variables,
-    const bool &false_exp=false);
+    const bool &false_exp);
 
   // evaluation
   bool eval(std::vector<bool> input);
+  bool eval(std::set<int> input);
   CNF_exp partial_eval(const int &literal);
   CNF_exp partial_eval(const std::vector<int> &literals);
 

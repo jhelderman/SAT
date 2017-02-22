@@ -125,7 +125,6 @@ void CNF_exp::load(char* path) {
 
   if (fid.is_open()) {
     // find the beginning of the logical expression
-    std::getline(fid, line);
     while (line[0] != 'p') {
       std::getline(fid, line);
     }
@@ -180,10 +179,25 @@ bool CNF_exp::eval(std::vector<bool> input) {
 }
 
 
+bool CNF_exp::eval(std::set<int> input) {
+  // determine the boolean vector corresponding to the input
+  std::vector<bool> vec_input(this->num_literals, false);
+  for (std::set<int>::iterator it = input.begin(); it != input.end(); ++it)
+    if (*it > 0)
+      vec_input[*it - 1] = true;
+  // evaluate
+  return this->eval(vec_input);
+}
+
+
 void CNF_exp::print() {
   // check for a false expression
   if (this->false_exp) {
     std::cout << "false" << std::endl;
+    return;
+  }
+  if (this->clauses.size() == 0 && !this->false_exp) {
+    std::cout << "true" << std::endl;
     return;
   }
   // print out the expression
@@ -198,6 +212,8 @@ void CNF_exp::print() {
 
 
 CNF_exp CNF_exp::partial_eval(const int &literal) {
+  if (this->false_exp)
+    return *this;
   // get the variable id and value
   int var_id;
   bool val;
@@ -217,6 +233,7 @@ CNF_exp CNF_exp::partial_eval(const int &literal) {
   bool clause_false;
   int clause_var_id;
   std::vector<std::vector<int> > clauses;
+  // std::cout << "new eval";
   for (unsigned i = 0; i < this->clauses.size(); ++i) {
     // check for the variable in the given clause
     clause_true = false;
@@ -249,7 +266,7 @@ CNF_exp CNF_exp::partial_eval(const int &literal) {
     }
   }
   // construct a new CNF expression from the result
-  return CNF_exp(this->num_literals, clauses, variables);
+  return CNF_exp(this->num_literals, clauses, variables, false);
 }
 
 
