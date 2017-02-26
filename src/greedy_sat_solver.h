@@ -1,10 +1,10 @@
 #pragma once
 #include "cnf_exp.h"
+#include "sat_solver.h"
 #include <set>
 
 
-class Greedy_SAT_Solver {
-  void optimal_assignment(CNF_exp exp, CNF_exp &opt_exp, int &opt_literal);
+class Greedy_SAT_Solver : public SAT_Solver {
  public:
   // constructors
   Greedy_SAT_Solver();

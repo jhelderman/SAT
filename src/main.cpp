@@ -1,6 +1,7 @@
 #include "cnf_exp.h"
 #include "bf_sat_solver.h"
 #include "greedy_sat_solver.h"
+#include "dpll_sat_solver.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -57,8 +58,8 @@ void print(std::set<int> a) {
 int main(int argc, char** argv) {
   unsigned counter = 0;
   unsigned nonsense_counter = 0;
-  const std::string nvar = "175";
-  const std::string nclause = "753";
+  const std::string nvar = "20";
+  const std::string nclause = "91";
   for (unsigned i = 1; i < 101; ++i) {
     // parameters
     // char* path = (char*)"./test/test1.cnf";
@@ -68,16 +69,19 @@ int main(int argc, char** argv) {
     // load the cnf expression
     std::cout << "Loading CNF Expression #" << i << "..." << std::endl;
     CNF_exp cnf(path);
-    Greedy_SAT_Solver greedy_solver;
+    // Greedy_SAT_Solver greedy_solver;
+    // std::set<int> assignment;
+    // int sat = greedy_solver.check(cnf, assignment);
+    DPLL_SAT_Solver dpll_solver;
     std::set<int> assignment;
-    int greedy_sat = greedy_solver.check(cnf, assignment);
-    if (greedy_sat == 0) {
+    int sat = dpll_solver.check(cnf, assignment);
+    if (sat == 0) {
       std::cout << "WRONG" << std::endl;
       ++counter;
     } else {
       bool cnf_eval = cnf.eval(assignment);
       if (!cnf_eval) {
-        std::cout << "Strange things are happening... ############################" << std::endl;
+        std::cout << "Inconsistent Answer" << std::endl;
         ++nonsense_counter;
         print(assignment);
       }
