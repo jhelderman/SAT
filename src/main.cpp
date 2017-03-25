@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   char* mod_filename = (char*)"./test/test1.mod";
   char* run_filename = (char*)"./test/test1.run";
   char* output_filename = (char*)"./test/test1.out";
-  int timelimit = -1;
+  int timelimit = -1;  // timelimit = -1; means unlimited time
 
   // load the CNF file
   CNF_exp exp(path);
