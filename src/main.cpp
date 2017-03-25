@@ -21,9 +21,9 @@ int main(int argc, char** argv) {
 
   // parameters
   char* path = (char*)"./test/test1.cnf";
-  char* mod_filename = "./test/test1.mod";
-  char* run_filename = "./test/test1.run";
-  char* output_filename = "./test/test1.out";
+  char* mod_filename = (char*)"./test/test1.mod";
+  char* run_filename = (char*)"./test/test1.run";
+  char* output_filename = (char*)"./test/test1.out";
   int timelimit = -1;
 
   // load the CNF file

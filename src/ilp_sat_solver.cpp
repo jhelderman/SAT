@@ -13,7 +13,7 @@ void CNF_to_AMPL(CNF_exp exp, const char* filename, const char* run_filename, in
   model_file = fopen(filename, "w");
   fprintf(model_file, "var x {i in 1..%u} binary;\n", num_literals);
   // write the objective function
-  fprintf(model_file, "maximize objective: 0;");
+  fprintf(model_file, "maximize objective: 0;\n");
   // iterate through the clauses and write the constraints
   unsigned clause_size = 0;
   std::vector<int> clause;
@@ -41,12 +41,12 @@ void CNF_to_AMPL(CNF_exp exp, const char* filename, const char* run_filename, in
   // write the AMPL script
   std::FILE* run_file;
   run_file = fopen(run_filename, "w");
-  fprintf(run_file, "model %s;", filename);
-  fprintf(run_file, "option solver cplex;");
+  fprintf(run_file, "model %s;\n", filename);
+  fprintf(run_file, "option solver cplex;\n");
   if (timelimit > 0)
-    fprintf(run_file, "option cplex_options 'timelimit=%i';", timelimit);
-  fprintf(run_file, "solve;");
-  fprintf(run_file, "display x;");
+    fprintf(run_file, "option cplex_options 'timelimit=%i';\n", timelimit);
+  fprintf(run_file, "solve;\n");
+  fprintf(run_file, "display x;\n");
   fclose(run_file);
 }
 
