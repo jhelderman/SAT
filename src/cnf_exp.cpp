@@ -82,6 +82,10 @@ unsigned CNF_exp::get_num_literals() {
   return this->num_literals;
 }
 
+std::vector<std::vector<int> > CNF_exp::get_clauses() {
+  return this->clauses;
+}
+
 
 unsigned CNF_exp::get_length() {
   return this->clauses.size();

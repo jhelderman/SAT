@@ -45,6 +45,7 @@ class CNF_exp {
   std::vector<int> singleton_clauses();
   unsigned get_num_literals();
   unsigned get_length();
+  std::vector<std::vector<int> > get_clauses();
   bool is_false_exp();
   bool is_true_exp();
   std::set<int> get_variables();

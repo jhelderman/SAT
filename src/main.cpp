@@ -2,10 +2,36 @@
 #include "bf_sat_solver.h"
 #include "greedy_sat_solver.h"
 #include "dpll_sat_solver.h"
+#include "ilp_sat_solver.h"
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cstring>
+
+
+void print(std::set<int> a) {
+  for (std::set<int>::iterator it = a.begin(); it != a.end(); ++it)
+    std::cout << *it << " ";
+  std::cout << std::endl;
+}
+
+
+int main(int argc, char** argv) {
+  // An example of how to use the ILP SAT solver
+
+  // parameters
+  char* path = (char*)"./test/test1.cnf";
+  char* mod_filename = "./test/test1.mod";
+  char* run_filename = "./test/test1.run";
+  char* output_filename = "./test/test1.out";
+  int timelimit = -1;
+
+  // load the CNF file
+  CNF_exp exp(path);
+  ILP_SAT_Solver solver;
+  solver.check(exp, mod_filename, run_filename, output_filename, timelimit);
+  return 0;
+}
 
 // int main(int argc, char** argv) {
 //   // parameters
@@ -49,48 +75,42 @@
 //   return 0;
 // }
 
-void print(std::set<int> a) {
-  for (std::set<int>::iterator it = a.begin(); it != a.end(); ++it)
-    std::cout << *it << " ";
-  std::cout << std::endl;
-}
-
-int main(int argc, char** argv) {
-  unsigned counter = 0;
-  unsigned nonsense_counter = 0;
-  const std::string nvar = "20";
-  const std::string nclause = "91";
-  for (unsigned i = 1; i < 101; ++i) {
-    // parameters
-    // char* path = (char*)"./test/test1.cnf";
-    std::string buf = ("/home/jhelderman/E/school/comb-opt/SAT-examples/uf" + nvar + "-" + nclause + "/uf" + nvar + "-0" + std::to_string(i) +  ".cnf");
-    char* path = new char[buf.length() + 1];
-    std::strcpy(path, buf.c_str());
-    // load the cnf expression
-    std::cout << "Loading CNF Expression #" << i << "..." << std::endl;
-    CNF_exp cnf(path);
-    // Greedy_SAT_Solver greedy_solver;
-    // std::set<int> assignment;
-    // int sat = greedy_solver.check(cnf, assignment);
-    DPLL_SAT_Solver dpll_solver;
-    std::set<int> assignment;
-    int sat = dpll_solver.check(cnf, assignment);
-    if (sat == 0) {
-      std::cout << "WRONG" << std::endl;
-      ++counter;
-    } else {
-      bool cnf_eval = cnf.eval(assignment);
-      if (!cnf_eval) {
-        std::cout << "Inconsistent Answer" << std::endl;
-        ++nonsense_counter;
-        print(assignment);
-      }
-    }
-    delete[] path;
-  }
-  std::cout << "Number of Variables: " << nvar << std::endl;
-  std::cout << "Number of Clauses: " << nclause << std::endl;
-  std::cout << counter << " / 100 Errors" << std::endl;
-  std::cout << nonsense_counter << " / 100 Illogical Answers" << std::endl;
-  return 0;
-}
+// int main(int argc, char** argv) {
+//   unsigned counter = 0;
+//   unsigned nonsense_counter = 0;
+//   const std::string nvar = "20";
+//   const std::string nclause = "91";
+//   for (unsigned i = 1; i < 101; ++i) {
+//     // parameters
+//     // char* path = (char*)"./test/test1.cnf";
+//     std::string buf = ("/home/jhelderman/E/school/comb-opt/SAT-examples/uf" + nvar + "-" + nclause + "/uf" + nvar + "-0" + std::to_string(i) +  ".cnf");
+//     char* path = new char[buf.length() + 1];
+//     std::strcpy(path, buf.c_str());
+//     // load the cnf expression
+//     std::cout << "Loading CNF Expression #" << i << "..." << std::endl;
+//     CNF_exp cnf(path);
+//     // Greedy_SAT_Solver greedy_solver;
+//     // std::set<int> assignment;
+//     // int sat = greedy_solver.check(cnf, assignment);
+//     DPLL_SAT_Solver dpll_solver;
+//     std::set<int> assignment;
+//     int sat = dpll_solver.check(cnf, assignment);
+//     if (sat == 0) {
+//       std::cout << "WRONG" << std::endl;
+//       ++counter;
+//     } else {
+//       bool cnf_eval = cnf.eval(assignment);
+//       if (!cnf_eval) {
+//         std::cout << "Inconsistent Answer" << std::endl;
+//         ++nonsense_counter;
+//         print(assignment);
+//       }
+//     }
+//     delete[] path;
+//   }
+//   std::cout << "Number of Variables: " << nvar << std::endl;
+//   std::cout << "Number of Clauses: " << nclause << std::endl;
+//   std::cout << counter << " / 100 Errors" << std::endl;
+//   std::cout << nonsense_counter << " / 100 Illogical Answers" << std::endl;
+//   return 0;
+// }
