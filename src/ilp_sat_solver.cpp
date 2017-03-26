@@ -83,6 +83,6 @@ int ILP_SAT_Solver::check(
   char* cmd = new char[9 + run_filename.size() + output_filename.size()];
   sprintf(cmd, "ampl %s > %s", run_filename.c_str(), output_filename.c_str());
   std::cout << cmd << std::endl;
-  // std::system(cmd);
+  std::system(cmd);
   return 0;
 }
