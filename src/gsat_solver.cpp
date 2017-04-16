@@ -1,41 +1,5 @@
 #include "gsat_solver.h"
-
-
-int satisfied_clauses(CNF_exp exp, std::vector<int> assignment) {
-  /*
-    Determines the number of clauses satisfied by the given assignment
-
-    inputs:
-      exp: a logical expression in conjunctive normal form
-      assignment: an assignment of the logical variables in the expression
-
-    outputs:
-      num_sat: the number of clauses satisfied by the assignment
-   */
-  // get the clauses from the expression
-  std::vector<std::vector<int> > clauses = exp.get_clauses();
-  // iterate through the clauses
-  int num_sat = 0;
-  bool satisfied = false;
-  for (unsigned i = 0; i < clauses.size(); ++i) {
-    // check if the clause is satisfied
-    satisfied = false;
-    for (unsigned j = 0; j < assignment.size(); ++j) {
-      for (unsigned k = 0; k < clauses[i].size(); ++k) {
-        if (clauses[i][k] == assignment[j]) {
-          satisfied = true;
-          break;
-        }
-      }
-      if (satisfied)
-        break;
-    }
-    // increment the counter if satisfied
-    if (satisfied)
-      ++num_sat;
-  }
-  return num_sat;
-}
+#include <unordered_set>
 
 
 int best_neighbor(CNF_exp exp, std::vector<int> assignment, int &best_sat) {
@@ -59,14 +23,19 @@ int best_neighbor(CNF_exp exp, std::vector<int> assignment, int &best_sat) {
   // initialize buffer variables
   int num_sat = 0;
   std::vector<int> temp_assignment(assignment);
+  std::unordered_set<int> assignment_set = vec2set(assignment);
   // iterate through the neighborhood
   for (unsigned i = 0; i < temp_assignment.size(); ++i) {
     // flip the assignment at position i
+    assignment_set.erase(temp_assignment[i]);
     temp_assignment[i] *= -1;
+    assignment_set.insert(temp_assignment[i]);
     // check the number of clauses satisfied
-    num_sat = satisfied_clauses(exp, temp_assignment);
+    num_sat = satisfied_clauses(exp, assignment_set);
     // flip the assignment back to the original value
+    assignment_set.erase(temp_assignment[i]);
     temp_assignment[i] *= -1;
+    assignment_set.insert(temp_assignment[i]);
     // update the best flip
     if (num_sat > best_sat) {
       best_sat = num_sat;
@@ -75,19 +44,6 @@ int best_neighbor(CNF_exp exp, std::vector<int> assignment, int &best_sat) {
   }
   // return the best neighbor
   return best_flip;
-}
-
-
-std::vector<int> random_assignment(unsigned num_literals) {
-  // initialize the random number generator
-  std::default_random_engine generator;
-  std::uniform_int_distribution<int> distribution(0, 1);
-  // initialize the assignment
-  std::vector<int> assignment(num_literals);
-  // randomly generate an assignment
-  for (unsigned i = 0; i < num_literals; ++i)
-    assignment[i] = (2 * distribution(generator) - 1) * (i + 1);
-  return assignment;
 }
 
 
@@ -137,7 +93,8 @@ int GSAT_Solver::check(
     CNF_exp exp, std::vector<int> &initial_assignment) {
   // initialize loop variables
   bool done = false;
-  int best_sat = satisfied_clauses(exp, initial_assignment);
+  std::unordered_set<int> assignment_set = vec2set(initial_assignment);
+  int best_sat = satisfied_clauses(exp, assignment_set);
   // iteratively perform the local search procedure
   while (!done) {
     this->GSAT_update(exp, initial_assignment, best_sat, done);
@@ -158,7 +115,8 @@ int GSAT_Solver::check(
     CNF_exp exp, std::vector<int> &initial_assignment, const double &time_limit) {
   // initialize loop variables
   bool done = false;
-  int best_sat = satisfied_clauses(exp, initial_assignment);
+  std::unordered_set<int> assignment_set = vec2set(initial_assignment);
+  int best_sat = satisfied_clauses(exp, assignment_set);
   std::chrono::steady_clock::time_point start_time =
       std::chrono::steady_clock::now();
   // iteratively perform the local search procedure
@@ -179,19 +137,28 @@ int GSAT_Solver::check(
 
 
 int GSAT_Solver::check(
-    CNF_exp exp, const unsigned max_flips, const unsigned &max_tries) {
+    CNF_exp exp, const unsigned max_flips, const unsigned &max_tries,
+    std::vector<int> &best_assignment, int &best_sat) {
+  best_sat = 0;
   // iterate through the possible tries
   for (unsigned i = 0; i < max_tries; ++i) {
     // initialize loop variables
     std::vector<int> initial_assignment = random_assignment(exp.get_num_literals());
-    int best_sat = satisfied_clauses(exp, initial_assignment);
+    print(initial_assignment);
+    std::unordered_set<int> assignment_set = vec2set(initial_assignment);
+    int try_best_sat = satisfied_clauses(exp, assignment_set);
     bool done = false;
     // iteratively perform the local search procedure
     for (unsigned j = 0; j < max_flips; ++j) {
       // do the local search
-      this->GSAT_update(exp, initial_assignment, best_sat, done);
+      this->GSAT_update(exp, initial_assignment, try_best_sat, done);
+      // update the global best assignments
+      if (try_best_sat > best_sat) {
+        best_sat = try_best_sat;
+        best_assignment = initial_assignment;
+      }
       // check if an assignment or local minimum was found
-      if (done && (unsigned)best_sat == exp.get_num_clauses())
+      if (done && (unsigned)try_best_sat == exp.get_num_clauses())
         return 1;
       else if (done)
         break;
