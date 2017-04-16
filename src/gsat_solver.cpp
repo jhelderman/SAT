@@ -65,7 +65,7 @@ void GSAT_Solver::GSAT_update(
   int temp_sat = 0;
   int best_flip = best_neighbor(exp, current_assignment, temp_sat);
   // compare to the current assignment
-  if (temp_sat >= best_sat) {
+  if (temp_sat > best_sat) {
     current_assignment[best_flip] *= -1;
     best_sat = temp_sat;
   } else {
@@ -77,24 +77,54 @@ void GSAT_Solver::GSAT_update(
 GSAT_Solver::GSAT_Solver() {}
 
 
-int GSAT_Solver::check(CNF_exp exp) {
-  std::vector<int> initial_assignment = random_assignment(exp.get_num_literals());
-  return this->check(exp, initial_assignment);
+std::vector<int> get_initial_assignment(CNF_exp exp, const int &init_method) {
+  /*
+    Returns the initial assignment, given the initialization method code
+
+    init_method: The initialization method code. The mapping is as follows.
+      1 (default): random assignment
+      2: greedy assignment
+   */
+  std::vector<int> initial_assignment;
+  switch (init_method) {
+    case 1:
+      initial_assignment = random_assignment(exp.get_num_literals());
+    case 2:
+      initial_assignment = greedy_assignment(exp);
+    default:
+      initial_assignment = random_assignment(exp.get_num_literals());
+  }
+  return initial_assignment;
 }
 
 
-int GSAT_Solver::check(CNF_exp exp, const double &time_limit) {
-  std::vector<int> initial_assignment = random_assignment(exp.get_num_literals());
-  return this->check(exp, initial_assignment, time_limit);
+int GSAT_Solver::check(CNF_exp exp) {
+  // use random by default
+  std::vector<int> initial_assignment = get_initial_assignment(exp, 1);
+  std::vector<int> best_assignment;
+  int best_sat = 0;
+  return this->check(exp, initial_assignment, best_sat);
+}
+
+
+int GSAT_Solver::check(CNF_exp exp, const int &init_method, std::vector<int> &best_assignment, int &best_sat) {
+  best_assignment = get_initial_assignment(exp, init_method);
+  return this->check(exp, best_assignment, best_sat);
+}
+
+
+int GSAT_Solver::check(CNF_exp exp, const int &init_method, const double &time_limit, std::vector<int> &best_assignment, int &best_sat) {
+  best_assignment = get_initial_assignment(exp, init_method);
+  return this->check(exp, best_assignment, time_limit, best_sat);
 }
 
 
 int GSAT_Solver::check(
-    CNF_exp exp, std::vector<int> &initial_assignment) {
+    CNF_exp exp, std::vector<int> &initial_assignment, int &best_sat) {
   // initialize loop variables
   bool done = false;
   std::unordered_set<int> assignment_set = vec2set(initial_assignment);
-  int best_sat = satisfied_clauses(exp, assignment_set);
+  best_sat = satisfied_clauses(exp, assignment_set);
   // iteratively perform the local search procedure
   while (!done) {
     this->GSAT_update(exp, initial_assignment, best_sat, done);
@@ -112,11 +142,11 @@ int GSAT_Solver::check(
 
 
 int GSAT_Solver::check(
-    CNF_exp exp, std::vector<int> &initial_assignment, const double &time_limit) {
+    CNF_exp exp, std::vector<int> &initial_assignment, const double &time_limit, int &best_sat) {
   // initialize loop variables
   bool done = false;
   std::unordered_set<int> assignment_set = vec2set(initial_assignment);
-  int best_sat = satisfied_clauses(exp, assignment_set);
+  best_sat = satisfied_clauses(exp, assignment_set);
   std::chrono::steady_clock::time_point start_time =
       std::chrono::steady_clock::now();
   // iteratively perform the local search procedure

@@ -172,5 +172,5 @@ std::vector<int> greedy_assignment(CNF_exp exp, std::set<int> &partial_assignmen
     return random_assignment(opt_exp, partial_assignment);
   else
     // continue to assign literals
-    return greedy_assignment(exp, partial_assignment);
+    return greedy_assignment(opt_exp, partial_assignment);
 }

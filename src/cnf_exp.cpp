@@ -229,8 +229,6 @@ void CNF_exp::print() {
 
 
 CNF_exp CNF_exp::partial_eval(const int &literal) {
-  if (this->false_exp)
-    return *this;
   // get the variable id and value
   int var_id;
   bool val;
@@ -245,6 +243,9 @@ CNF_exp CNF_exp::partial_eval(const int &literal) {
   std::set<int> variables(this->variables);
   variables.erase(var_id);
   variables.erase(-var_id);
+  // handle the false expression case
+  if (this->false_exp)
+    return CNF_exp(this->num_literals, this->clauses, variables, this->false_exp);
   // iterate through the clauses
   bool clause_true;
   bool clause_false;
