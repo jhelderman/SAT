@@ -78,12 +78,25 @@ CNF_exp::CNF_exp(
 }
 
 
+CNF_exp::CNF_exp(const CNF_exp &other) {
+  this->num_literals = other.num_literals;
+  this->variables = other.variables;
+  this->clauses = other.clauses;
+  this->false_exp = other.false_exp;
+}
+
+
 unsigned CNF_exp::get_num_literals() {
   return this->num_literals;
 }
 
 std::vector<std::vector<int> > CNF_exp::get_clauses() {
   return this->clauses;
+}
+
+
+unsigned CNF_exp::get_num_clauses() {
+  return this->clauses.size();
 }
 
 

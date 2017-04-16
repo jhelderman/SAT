@@ -30,6 +30,7 @@ class CNF_exp {
     const std::vector<std::vector<int> > &clauses,
     const std::set<int> variables,
     const bool &false_exp);
+  CNF_exp(const CNF_exp &other);
 
   // evaluation
   bool eval(std::vector<bool> input);
@@ -46,6 +47,7 @@ class CNF_exp {
   unsigned get_num_literals();
   unsigned get_length();
   std::vector<std::vector<int> > get_clauses();
+  unsigned get_num_clauses();
   bool is_false_exp();
   bool is_true_exp();
   std::set<int> get_variables();

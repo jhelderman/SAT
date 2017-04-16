@@ -3,6 +3,7 @@
 #include "greedy_sat_solver.h"
 #include "dpll_sat_solver.h"
 #include "ilp_sat_solver.h"
+#include "gsat_solver.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -17,21 +18,40 @@ void print(std::set<int> a) {
 
 
 int main(int argc, char** argv) {
-  // An example of how to use the ILP SAT solver
+  // An example of how to use the GSAT Solver
 
-  // parameters
-  char* path = (char*)"./test/test1.cnf";
-  char* mod_filename = (char*)"./test/test1.mod";
-  char* run_filename = (char*)"./test/test1.run";
-  char* output_filename = (char*)"./test/test1.out";
-  int timelimit = -1;  // timelimit = -1; means unlimited time
+    // parameters
+    char* path = (char*)"./test/test1.cnf";
 
-  // load the CNF file
-  CNF_exp exp(path);
-  ILP_SAT_Solver solver;
-  solver.check(exp, mod_filename, run_filename, output_filename, timelimit);
-  return 0;
+    // load the CNF file
+    CNF_exp exp(path);
+    exp.print();
+    GSAT_Solver solver;
+    std::vector<int> initial_assignment = {1, 2, 3, 4};
+    int sat = solver.check(exp);
+
+    // print the result
+    printf("Satisfiable: %d\n", sat);
+    return 0;
 }
+
+
+// int main(int argc, char** argv) {
+//   // An example of how to use the ILP SAT solver
+
+//   // parameters
+//   char* path = (char*)"./test/test1.cnf";
+//   char* mod_filename = (char*)"./test/test1.mod";
+//   char* run_filename = (char*)"./test/test1.run";
+//   char* output_filename = (char*)"./test/test1.out";
+//   int timelimit = -1;  // timelimit = -1; means unlimited time
+
+//   // load the CNF file
+//   CNF_exp exp(path);
+//   ILP_SAT_Solver solver;
+//   solver.check(exp, mod_filename, run_filename, output_filename, timelimit);
+//   return 0;
+// }
 
 // int main(int argc, char** argv) {
 //   // parameters
