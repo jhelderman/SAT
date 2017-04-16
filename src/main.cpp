@@ -4,35 +4,65 @@
 #include "dpll_sat_solver.h"
 #include "ilp_sat_solver.h"
 #include "gsat_solver.h"
+#include "walksat_solver.h"
+#include "sat_utils.h"
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cstring>
 
 
-void print(std::set<int> a) {
-  for (std::set<int>::iterator it = a.begin(); it != a.end(); ++it)
-    std::cout << *it << " ";
-  std::cout << std::endl;
-}
-
-
 int main(int argc, char** argv) {
   // An example of how to use the GSAT Solver
 
-    // parameters
-    char* path = (char*)"./test/test1.cnf";
+  int sat;
+  std::vector<int> best_assignment;
+  int best_sat = 0;
+  // parameters
+  unsigned max_tries = 20;
+  unsigned max_flips = 600;
+  double time_limit = 1.0;
+  // char* path = (char*)"./test/test1.cnf";
+  char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf20-91/uf20-01.cnf";
+  // char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf50-218/uf50-01.cnf";
+  // char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf100-430/uf100-01.cnf";
 
-    // load the CNF file
-    CNF_exp exp(path);
-    exp.print();
-    GSAT_Solver solver;
-    std::vector<int> initial_assignment = {1, 2, 3, 4};
-    int sat = solver.check(exp);
+  // load the CNF file
+  CNF_exp exp(path);
 
-    // print the result
-    printf("Satisfiable: %d\n", sat);
-    return 0;
+  // initialize the solvers
+  GSAT_Solver gsat;
+  WALKSAT_Solver wsat(0.35);
+
+  // usage examples
+  // random initial assignment, no time limit
+  // sat = gsat.check(exp, 1, best_assignment, best_sat);
+  // greedy initial assignment, no time limit
+  sat = gsat.check(exp, 2, best_assignment, best_sat);
+  // random initial assignment, time limit
+  // sat = gsat.check(exp, 1, time_limit, best_assignment, best_sat);
+  // random initial assignment, search stops after a maximum number of flips,
+  // the search will try multiple initial assignments, stopping after a maximum
+  // number of tries. This is GSAT as Selman et. al. defined it in "A New Method
+  // for Solving Hard Satisfiability Problems" (1992)
+  // sat = gsat.check(exp, max_flips, max_tries, best_assignment, best_sat);
+
+  // WALKSAT Usage examples
+  // random initial assignment, search stops after a maximum number of flips,
+  // the search will try multiple initial assignmends, stopping after a maximum
+  // number of tries, and on every iteration, there is a probability (the value
+  // passed into the constructor) that the algorithm will flip a random bit
+  // instead of doing the usual GSAT procedure. This algorithm was taken from
+  // "Noise Strategies for Improving Local Search", by Selman et. al. (1994)
+  // sat = wsat.check(exp, max_flips, max_tries, best_assignment, best_sat);
+
+  // print the result
+  printf("Satisfiable: %d\n", sat);
+  printf("Best Number of clauses satisfied: %d\n", best_sat);
+  printf("Best Assignment:\n");
+  print(best_assignment);
+
+  return 0;
 }
 
 
