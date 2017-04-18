@@ -20,16 +20,16 @@ int main(int argc, char** argv) {
   std::vector<int> best_assignment;
   int best_sat = 0;
   // parameters
-  unsigned max_tries = 100;
+  unsigned max_tries = 1;
   unsigned max_flips = 500;
   double time_limit = 1.0;
   double T0 = 1.0;
-  double T_min = 0.1;
-  double cooling_factor = 0.95;
+  double T_min = 0.01;
+  double cooling_factor = 0.999;
   // char* path = (char*)"./test/test1.cnf";
-  char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf20-91/uf20-01.cnf";
+  // char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf20-91/uf20-01.cnf";
   // char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf50-218/uf50-02.cnf";
-  // char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf100-430/uf100-03.cnf";
+  char* path = (char*)"/home/jhelderman/E/school/comb-opt/SAT-examples/uf100-430/uf100-01.cnf";
 
   // load the CNF file
   CNF_exp exp(path);
