@@ -15,7 +15,6 @@ int WALKSAT_Solver::check(CNF_exp exp, const unsigned max_flips, const unsigned 
   for (unsigned i = 0; i < max_tries; ++i) {
     // initialize loop variables
     std::vector<int> initial_assignment = random_assignment(exp.get_num_literals());
-    print(initial_assignment);
     std::unordered_set<int> assignment_set = vec2set(initial_assignment);
     int try_best_sat = satisfied_clauses(exp, assignment_set);
     int temp_sat = try_best_sat;
@@ -25,15 +24,10 @@ int WALKSAT_Solver::check(CNF_exp exp, const unsigned max_flips, const unsigned 
     for (unsigned j = 0; j < max_flips; ++j) {
       // do the local search
       this->WALKSAT_update(exp, temp_assignment, temp_sat, done);
-      // update the local best assignments
-      if (temp_sat > try_best_sat) {
-        try_best_sat = temp_sat;
-        initial_assignment = temp_assignment;
-      }
       // update the global best assignments
-      if (try_best_sat > best_sat) {
-        best_sat = try_best_sat;
-        best_assignment = initial_assignment;
+      if (temp_sat > best_sat) {
+        best_sat = temp_sat;
+        best_assignment = temp_assignment;
       }
       // check if an assignment or local minimum was found
       if (done && (unsigned)try_best_sat == exp.get_num_clauses())
