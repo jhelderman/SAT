@@ -77,15 +77,17 @@ int SA_SAT_Solver::check(
         if (!(simulated_annealing_flip(delta, T))) {
           // revert flip if rejected
           flip(current_assignment, assignment_set, v);
+        } else {
+          current_sat = new_sat;
         }
         // update the global max
         update_global_max(current_assignment, current_sat, best_assignment, best_sat);
         if (best_sat == num_clauses)
           return 1;
       }
+      // update the temperature
+      T *= this->cooling_factor;
     }
-    // update the temperature
-    T *= this->cooling_factor;
   }
   return 0;
 }
@@ -135,15 +137,17 @@ int SA_SAT_Solver::check(
         if (!(simulated_annealing_flip(delta, T))) {
           // revert flip if rejected
           flip(current_assignment, assignment_set, v);
+        } else {
+          current_sat = new_sat;
         }
         // update the global max
         update_global_max(current_assignment, current_sat, best_assignment, best_sat);
         if (best_sat == num_clauses)
           return 1;
       }
+      // update the temperature
+      T *= this->cooling_factor;
     }
-    // update the temperature
-    T *= this->cooling_factor;
   }
   return 0;
 }
