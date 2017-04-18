@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include "cnf_exp.h"
 #include <random>
+#include <math.h>
 
 double get_time(std::chrono::steady_clock::time_point start_time);
 void print(std::set<int> a);
@@ -19,3 +20,4 @@ std::vector<int> random_assignment(unsigned num_literals);
 std::vector<int> random_assignment(CNF_exp exp, std::set<int> &partial_assignment);
 std::vector<int> greedy_assignment(CNF_exp exp);
 std::vector<int> greedy_assignment(CNF_exp exp, std::set<int> &partial_assignment);
+bool simulated_annealing_flip(double delta, double T);

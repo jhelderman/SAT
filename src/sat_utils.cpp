@@ -174,3 +174,20 @@ std::vector<int> greedy_assignment(CNF_exp exp, std::set<int> &partial_assignmen
     // continue to assign literals
     return greedy_assignment(opt_exp, partial_assignment);
 }
+
+
+bool simulated_annealing_flip(double delta, double T) {
+  // check whether the delta is greater than 0
+  if (delta >= 0) {
+    // return true with probability 1
+    return true;
+  } else {
+    // return true with a probability determined by the exponential function
+    // initialize the distribution
+    std::uniform_real_distribution<double> distribution(0, 1);
+    // compute the probability of flip
+    double p = std::exp(delta / T);
+    // draw from the distribution to determine whether to flip
+    return (distribution(rng) < p);
+  }
+}
